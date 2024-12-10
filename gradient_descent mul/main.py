@@ -15,11 +15,9 @@ def gradient_descent(w,b,x,y,L):
 	derivative_w=np.zeros(w_len,)
 	derivative_b=0
 
-	for i in range(n):
-		err=(np.dot(w,x[i])+b-y[i])
-		for j in range(w_len):
-			derivative_w[j]=derivative_w[j]+err*x[i,j]
-		derivative_b+=err
+	for i in range(w_len):
+		for j in range(n):
+			derivative_w[i]=derivative_w[i]+(np.dot(w,x[j])+b-y[j])*x[j][i]
 	derivative_w=derivative_w/n
 	b=b-L*derivative_b
 	return [w,b]
