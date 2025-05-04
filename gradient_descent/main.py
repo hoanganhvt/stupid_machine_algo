@@ -1,41 +1,44 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
+def loss_function(w, b, x, y, number_of_case):
+    res = 0.0
+    for i in range(number_of_case):
+        res += ((w * x[i] + b - y[i]) ** 2)
+    res = res / number_of_case
+    res = res * 0.5
+    return res
 
-def loss_function(w,b,x,y):
-	result=0
-	for i in range(len(x)):
-		result+=(w*x[i]+b-y[i])
-	return result
+def gradient_descent(w, b, x, y, number_of_case, learning_rate):
+    derivative_w = 0
+    derivative_b = 0
 
-def gradient_descent(w,b,x,y,learning_rate,n):
-	derivative_w=0
-	derivative_b=0
+    for i in range(number_of_case):
+        derivative_w += (w * x[i] + b - y[i]) * x[i]
+        derivative_b += (w * x[i] + b - y[i])
 
-	for i in range(n):
-		derivative_w+=(w*x[i]-y[i])*x[i]
-		derivative_b+=(w*x[i]-y[i])
-	derivative_w=derivative_w/float(n)
-	derivative_b=derivative_b/float(n)
-	w-=learning_rate*derivative_w
-	b-=learning_rate*derivative_b
-	return [w,b]
+    derivative_w /= number_of_case
+    derivative_b /= number_of_case
 
-data=pd.read_csv('test.csv').to_dict()
-w=0
-b=0
-x=[]
-y=[]
-L=0.0000001
+    return [w - learning_rate * derivative_w, b - learning_rate * derivative_b]
 
+data = pd.read_csv('test.csv')
+number_of_case = len(data['x'])
+w = 0
+b = 0
+x = data['x']
+y = data['y']
 
-for i in data['x']:
-	x.append(data['x'][i])
-for i in data['y']:
-	y.append(data['y'][i])
+print(loss_function(w, b, x, y, number_of_case))
 
-for i in range(100000):
-	[w,b]=gradient_descent(w,b,x,y,L,len(x))
-plt.scatter(x,y)
-plt.plot(list(range(0,100)),[w*x+b for x in range(0,100)],color="red")
+learning_rate = 0.0001
+for q in range(1000):
+    [w, b] = gradient_descent(w, b, x, y, number_of_case, learning_rate)
+
+print(loss_function(w, b, x, y, number_of_case))
+print([w, b])
+
+plt.scatter(x, y)
+plt.plot(x, w * x + b, color='red')  
 plt.show()
