@@ -29,7 +29,7 @@ def likelihood(w,x,y):
     res=1
     for i in range(m):
         prediction=sigmoid(w,x[i])
-        res=res*(prediction**y[i])*(1-prediction)**(1-y[i])
+        res=res*(prediction**y[i])*((1-prediction)**(1-y[i]))
     return res
 
 data=pd.read_csv('test.csv').to_dict()
@@ -45,14 +45,10 @@ for i in range(len(data['obese'])):
     y.append(data['obese'][i])
 
 iter_time=10000
-w=np.array([0,0])
+w=np.array([-9.91594276, 20.73774018])
 
 likelihoods = []
 for q in range(iter_time):
-    w = gradient_ascent(w, np.array(x), np.array(y), 0.01)
-    likelihoods.append(likelihood(w, np.array(x), np.array(y)))
-
-
-sample=[feature_scale(178,max_height,min_height),feature_scale(70,max_weight,min_weight)]
-plt.plot([val+1 for val in range(iter_time)],likelihoods)
-plt.show()
+    w = gradient_ascent(w, np.array(x), np.array(y), 0.003)
+sample=[feature_scale(178,max_height,min_height),feature_scale(85,max_weight,min_weight)]
+print(likelihood(w,np.array(x),np.array(y)))
