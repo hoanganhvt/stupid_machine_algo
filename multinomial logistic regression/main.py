@@ -41,49 +41,6 @@ for i in range(len(data)):
 
 print(number_of_error)
 
-import matplotlib.pyplot as plt 
-import pandas as pd 
-import numpy as np
-import math
-
-
-def softmax(x,theta,chosen_label,number_of_labels):
-	result=0.0
-	for j in range(number_of_labels):
-		result=result+np.exp(theta[j]@x)
-	result=np.exp(theta[chosen_label]@x)/result
-	return result
-
-
-def softmax_der(X,y,number_of_samples,theta,chosen_label,number_of_labels):
-	result=np.array([0 for i in range(len(X[0]))])
-	for i in range(number_of_samples):
-		result=result+(float(y[i]==chosen_label)-softmax(X[i],theta,chosen_label,number_of_labels))*X[i]
-	return result
-
-
-data=pd.read_csv('data.csv')
-X=[np.array([data['x'][i],data['y'][i],1]) for i in range(len(data))]
-number_of_labels=3
-
-theta=[
-	np.array([0,0,0])
-	for i in range(number_of_labels)
-]
-
-for e in range(1000):
-	for k in range(number_of_labels):
-		val_der=softmax_der(X,data['label'],len(data),theta,k,number_of_labels)
-		theta[k]=theta[k]+0.01*val_der
-		
-number_of_error=0
-for i in range(len(data)):
-	softmax_arr=[softmax(X[i],theta,k,number_of_labels) for k in range(number_of_labels)]
-	if max(softmax_arr)!=softmax_arr[data['label'][i]]:
-		number_of_error+=1
-
-print(number_of_error)
-
 #too lazy to write so this part is written by claude :)
 
 # ============ PHẦN VISUALIZATION THÊM VÀO ============
