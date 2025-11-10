@@ -1,0 +1,1 @@
+this is just my small attempt in order to create some kinds of generative algorithm based solly on statistic, nothing else :)
