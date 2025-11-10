@@ -1,1 +1,2 @@
 this is just my small attempt in order to create some kinds of generative algorithm based solly on statistic, nothing else :)
+there's 1 big problem is that it tends to move towards where there are no existing real sample but just where the probability go highest
