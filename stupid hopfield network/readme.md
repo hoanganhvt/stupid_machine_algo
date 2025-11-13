@@ -1,0 +1,1 @@
+well, this is just my small attempt to create some kinds of neural network : )
