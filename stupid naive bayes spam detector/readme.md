@@ -1,0 +1,1 @@
+this algo is way too popular so i really dont want to tell anything about it and it fucking stupid
