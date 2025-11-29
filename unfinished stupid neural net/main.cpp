@@ -59,7 +59,7 @@ void init_net(Neural_net &net, int number_of_layers, int *layer_neuron_nums){
 		}
 	}
 	
-	for(int i=1;i<number_of_layers;i++){
+	for(int i=0;i<number_of_layers;i++){
 		net.bias[i]=new double[net.layer_list[i].number_of_neurons];
 	}
 	
@@ -95,19 +95,15 @@ void forward(Neural_net &net){
 // 	}
 // }
 
-void back_propagation(Neural_net &net, double *test_input, double *test_output, double ***der_weight_of_layers){
+void back_propagation(Neural_net &net, double *test_input, double *test_output, double ***der_weight_of_layers, double **error_of_layer_bias){
 	double **error_of_layer;
-	double **error_of_layer_bias=new double*[net.number_of_layers];
 	error_of_layer=new double*[net.number_of_layers];
 	for(int i=0;i<net.number_of_layers;i++){
 		error_of_layer[i]=new double[net.layer_list[i].number_of_neurons];
-		error_of_layer_bias[i]=new double[net.layer_list[i].number_of_neurons];
 		for(int j=0;j<net.layer_list[i].number_of_neurons;j++){
 			error_of_layer[i][j]=0;
-			error_of_layer_bias[i][j]=0;
 		}
 	}
-	
 	for(int i=0;i<net.layer_list[0].number_of_neurons;i++){
 		net.layer_list[0].cur_val[i]=test_input[i];
 	}
@@ -128,25 +124,80 @@ void back_propagation(Neural_net &net, double *test_input, double *test_output, 
 				error_of_layer[L][i]=error_of_layer[L][i]+net.weights[L][i][j]*error_of_layer[L+1][j];
 			}
 			error_of_layer[L][i]=error_of_layer[L][i]*net.layer_list[L].cur_val[i]*(1-net.layer_list[L].cur_val[i]);
-			error_of_layer_bias[L][i]=error_of_layer[L][i];
+			error_of_layer_bias[L][i+1]=error_of_layer[L][i];
 		}
 	}
 	
 	for(L=net.number_of_layers-2;L>=0;--L){
-		for(int i=0;i<net.layer_list[L+1].number_of_neurons;i++){
-			for(int j=0;j<net.layer_list[L].number_of_neurons;j++){
-				der_weight_of_layers[L][i][j]=error_of_layer[L+1][i]*net.layer_list[L].cur_val[j];
+		for(int i=0;i<net.layer_list[L].number_of_neurons;i++){
+			for(int j=0;j<net.layer_list[L+1].number_of_neurons;j++){
+				der_weight_of_layers[L][i][j]=error_of_layer[L+1][j]*net.layer_list[L].cur_val[i];
 			}
 		}
 	}
 	
 	//kill the thing we dont need anymore
 	for(int i=0;i<net.number_of_layers;i++){
-		delete error_of_layer[i];
-		delete error_of_layer_bias[i];
+		delete[] error_of_layer[i];
 	}
-	delete error_of_layer;
-	delete error_of_layer_bias;
+	delete[] error_of_layer;
 }
+
 int main(){
+	Neural_net net;
+	int net_shape[]={1,64,64,1};
+	init_net(net,4,net_shape);
+	double *input=new double[1];
+	input[0]=0.1;
+	double *output=new double[1];
+	output[0]=0.2;
+	
+	forward(net);
+	cout<<net.layer_list[3].cur_val[0]<<endl;
+	
+	double ***der_weight_of_layers=new double**[3];
+	double **error_of_layer_bias=new double*[4];
+	for(int i=0;i<4;i++){
+		error_of_layer_bias[i]=new double[net_shape[i]];
+	}
+	for(int i=0;i<3;i++){
+		der_weight_of_layers[i]=new double*[net_shape[i]];
+		for(int j=0;j<net_shape[i];j++){
+			der_weight_of_layers[i][j]=new double[net_shape[i+1]];
+		}
+	}
+	for(int L=0;L<3;L++){
+		for(int i=0;i<net_shape[L];i++){
+			for(int j=0;j<net_shape[L+1];j++){
+				der_weight_of_layers[L][i][j]=0;
+			}
+		}
+	}
+	back_propagation(net, input, output, der_weight_of_layers, error_of_layer_bias);
+	
+	for(int L=0;L<3;L++){
+		for(int i=0;i<net_shape[L];i++){
+			for(int j=0;j<net_shape[L+1];j++){
+				net.weights[L][i][j]-=der_weight_of_layers[L][i][j];
+			}
+		}
+	}
+	
+	for(int L=0;L<3;L++){
+		for(int i=0;i<net_shape[L];i++){
+			net.bias[L][i]-=error_of_layer_bias[L][i];
+		}
+	}
+	
+	forward(net);
+	cout<<net.layer_list[3].cur_val[0]<<endl;
+	// for(int L=0;L<3;L++){
+	// 	for(int i=0;i<net_shape[L];i++){
+	// 		for(int j=0;j<net_shape[L+1];j++){
+	// 			cout<<der_weight_of_layers[L][i][j]<<" ";
+	// 		}
+	// 		cout<<endl;
+	// 	}
+	// 	cout<<"-----"<<endl;
+	// }
 }
